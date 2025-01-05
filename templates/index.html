@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPT Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">SPT Generator</h1>
+
+        <!-- Existing Members -->
+        <div class="mb-4">
+            <h3>Daftar Nama</h3>
+            <ul id="existingMembers" class="list-group" style="max-height: 200px; overflow-y: auto;">
+            </ul>
+        </div>
+
+        <!-- Yang Bertanda Tangan -->
+        <div class="mb-4">
+            <h3>Yang Bertanda Tangan</h3>
+            <select id="signerDropdown" class="form-select">
+            </select>
+        </div>
+
+        <!-- Search Member -->
+        <div class="mb-4">
+            <h3>Pencarian</h3>
+            <form id="searchForm">
+                <div class="mb-3">
+                    <label for="query" class="form-label">Ketik Nama</label>
+                    <input type="text" class="form-control" id="query" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Cari</button>
+            </form>
+            <ul class="list-group mt-3" id="searchResults"></ul>
+
+            <!-- Search Results Pop-Up -->
+            <div class="modal" id="searchModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Search Results</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group" id="searchResultsPopup"></ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="addSelectedMembers" class="btn btn-primary">Add to Existing Members</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Details -->
+        <div class="mb-4">
+            <h3>Detail Tugas</h3>
+            <form id="taskForm">
+                <div class="mb-3">
+                    <label for="tugas" class="form-label">Tugas</label>
+                    <input type="text" class="form-control" id="tugas" value="Site Class for EEWS" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lamaPerjalanan" class="form-label">Lama Perjalanan</label>
+                    <input type="text" class="form-control" id="lamaPerjalanan" value="6 (enam) hari" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lokasi" class="form-label">Lokasi</label>
+                    <input type="text" class="form-control" id="lokasi" value="Jawa Timur" required>
+                </div>
+                <div class="mb-3">
+                    <label for="tanggalBerangkat" class="form-label">Tanggal Berangkat</label>
+                    <input type="date" class="form-control" id="tanggalBerangkat" required>
+                </div>
+                <div class="mb-3">
+                    <label for="sumberDana" class="form-label">Sumber Dana</label>
+                    <input type="text" class="form-control" id="sumberDana" value="DIPA BMKG TA 2025, Siteclass for EEWS" required>
+                </div>
+            </form>
+        </div>
+
+        <!-- Generate ST -->
+        <div>
+            <h3>Generate Document</h3>
+            <form id="generateForm">
+                <button type="submit" class="btn btn-success">Generate Surat Tugas</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="static/js/main.js"></script>
+</body>
+</html>
