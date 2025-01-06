@@ -138,7 +138,7 @@ $(document).ready(function () {
     // Generate Document Logic
     $('#generateForm').on('submit', function (e) {
         e.preventDefault(); // Prevent default form submission
-
+    
         // Collect members
         const selectedMembers = [];
         $('.member-checkbox:checked').each(function () {
@@ -150,7 +150,7 @@ $(document).ready(function () {
                 organization: $(this).data('organization')
             });
         });
-
+    
         // Collect signer
         const selectedSigner = $('#signerDropdown option:selected');
         const signer = {
@@ -162,7 +162,7 @@ $(document).ready(function () {
                 : "Plh. Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu",
             organization: selectedSigner.data('organization')
         };
-
+    
         // Collect task details
         const taskDetails = {
             tugas: $('#tugas').val(),
@@ -171,22 +171,23 @@ $(document).ready(function () {
             tanggal_berangkat: $('#tanggalBerangkat').val(),
             sumber_dana: $('#sumberDana').val()
         };
-
+    
         // Combine data into a single object
         const data = {
             members: selectedMembers,
             signer: signer,
             task_details: taskDetails
         };
-
+    
         // Send the data to the server via AJAX
         $.ajax({
             url: '/generate_st',
             method: 'POST',
-            contentType: 'static/json',
+            contentType: 'application/json', 
             data: JSON.stringify(data),
             success: function () {
-                window.location.href = '/download_st'; // Trigger file download
+                // On success, trigger file download
+                window.location.href = '/download_st'; // Send a GET request to download the file
             },
             error: function (xhr, status, error) {
                 console.error('Error during document generation:', error);

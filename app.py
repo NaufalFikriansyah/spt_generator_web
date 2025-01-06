@@ -8,6 +8,7 @@ import json
 import os
 import requests
 from datetime import datetime
+import locale
 
 app = Flask(__name__)
 
@@ -103,11 +104,22 @@ def generate_docx(data, signer, task_details, output_path):
             current_row_idx += 1
 
     # Table 3: Task Details
+    # Set locale for Indonesian date format
+    locale.setlocale(locale.LC_TIME, "id_ID.utf8")  # Use "id_ID.utf8" for Indonesian language
+ 
+    formatted_date = task_details["tanggal_berangkat"]  # Use the input as-is if formatting fails
     task_table = tables[2]
+
+    try:
+        tanggal_berangkat = datetime.strptime(task_details["tanggal_berangkat"], "%Y-%m-%d")  # Assuming input is in 'YYYY-MM-DD'
+        formatted_date = tanggal_berangkat.strftime("%d %B %Y")  # Format to '10 Desember 2025'
+    except ValueError:
+        formatted_date = task_details["tanggal_berangkat"] 
+    
     task_table.cell(0, 2).text = task_details["tugas"]
     task_table.cell(1, 2).text = task_details["lama_perjalanan"]
     task_table.cell(2, 2).text = task_details["lokasi"]
-    task_table.cell(3, 2).text = task_details["tanggal_berangkat"]
+    task_table.cell(3, 2).text = formatted_date
     task_table.cell(4, 2).text = task_details["sumber_dana"]
 
     for row in task_table.rows:
@@ -172,6 +184,7 @@ def download_document():
     data = request.json
     task_details = data.get('task_details', {})
     output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
+    #output_path = "Surat_Tugas_Auto_Generated.docx"
     if not os.path.exists(output_path):
         return jsonify({"error": "Document not found"}), 404
     return send_file(output_path, as_attachment=True)
