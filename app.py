@@ -170,16 +170,6 @@ def search_member():
 
     return jsonify(results)
 
-@app.route('/download_st', methods=['GET'])
-def download_document():
-    data = request.json
-    task_details = data.get('task_details', {})
-    output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
-    #output_path = "Surat_Tugas_Auto_Generated.docx"
-    if not os.path.exists(output_path):
-        return jsonify({"error": "Document not found"}), 404
-    return send_file(output_path, as_attachment=True)
-
 @app.route('/generate_st', methods=['POST'])
 def generate_document():
     try:
@@ -209,6 +199,16 @@ def generate_document():
     except Exception as e:
         app.logger.error(f"Error in generate_document: {str(e)}")
         return jsonify({"error": f"Error generating document: {str(e)}"}), 500
+
+@app.route('/download_st', methods=['GET'])
+def download_document():
+    data = request.json
+    task_details = data.get('task_details', {})
+    #output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
+    output_path = "Surat_Tugas_Auto_Generated.docx"
+    # if not os.path.exists(output_path):
+    #     return jsonify({"error": "Document not found"}), 404
+    return send_file(output_path, as_attachment=True)
 
 @app.route('/add_member', methods=['POST'])
 def add_member():

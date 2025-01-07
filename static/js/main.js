@@ -200,15 +200,20 @@ $(document).ready(function () {
         $.ajax({
             url: '/generate_st',
             method: 'POST',
-            contentType: 'application/json', 
+            contentType: 'application/json',
             data: JSON.stringify(data),
-            success: function () {
-                // On success, trigger file download
-                window.location.href = '/download_st'; // Send a GET request to download the file
+            success: function (response) {
+                // Now download the generated file
+                window.location.href = '/download_st';
             },
             error: function (xhr, status, error) {
-                console.error('Error during document generation:', error);
-                alert('An error occurred while generating the document. Please try again.');
+                console.error('Error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText
+                });
+                console.log(response);
+                alert('An error occurred while generating the document. Please check the console for details.');
             }
         });
     });
