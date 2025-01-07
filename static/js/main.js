@@ -162,13 +162,30 @@ $(document).ready(function () {
                 : "Plh. Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu",
             organization: selectedSigner.data('organization')
         };
-    
+        //format date 
+        // Function to format date from YYYY-MM-DD to DD MM YYYY
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const months = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+        
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+        
+            return `${day} ${month} ${year}`;
+        }
+        const rawDate = $('#tanggalBerangkat').val(); // Returns YYYY-MM-DD
+        const formattedDate = formatDate(rawDate); // Converts to DD MM YYYY
+
         // Collect task details
         const taskDetails = {
             tugas: $('#tugas').val(),
             lama_perjalanan: $('#lamaPerjalanan').val(),
             lokasi: $('#lokasi').val(),
-            tanggal_berangkat: $('#tanggalBerangkat').val(),
+            tanggal_berangkat: formattedDate,
             sumber_dana: $('#sumberDana').val()
         };
     

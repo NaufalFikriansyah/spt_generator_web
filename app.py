@@ -8,7 +8,7 @@ import json
 import os
 import requests
 from datetime import datetime
-import locale
+#import locale
 
 app = Flask(__name__)
 
@@ -104,22 +104,13 @@ def generate_docx(data, signer, task_details, output_path):
             current_row_idx += 1
 
     # Table 3: Task Details
-    # Set locale for Indonesian date format
-    locale.setlocale(locale.LC_TIME, "id_ID.utf8")  # Use "id_ID.utf8" for Indonesian language
- 
-    formatted_date = task_details["tanggal_berangkat"]  # Use the input as-is if formatting fails
-    task_table = tables[2]
-
-    try:
-        tanggal_berangkat = datetime.strptime(task_details["tanggal_berangkat"], "%Y-%m-%d")  # Assuming input is in 'YYYY-MM-DD'
-        formatted_date = tanggal_berangkat.strftime("%d %B %Y")  # Format to '10 Desember 2025'
-    except ValueError:
-        formatted_date = task_details["tanggal_berangkat"] 
     
+    task_table = tables[2]
     task_table.cell(0, 2).text = task_details["tugas"]
     task_table.cell(1, 2).text = task_details["lama_perjalanan"]
     task_table.cell(2, 2).text = task_details["lokasi"]
-    task_table.cell(3, 2).text = formatted_date
+    #task_table.cell(3, 2).text = formatted_date
+    task_table.cell(3, 2).text = task_details["tanggal_berangkat"] 
     task_table.cell(4, 2).text = task_details["sumber_dana"]
 
     for row in task_table.rows:
@@ -191,28 +182,33 @@ def download_document():
 
 @app.route('/generate_st', methods=['POST'])
 def generate_document():
-    data = request.json
-
-    # Extract data
-    members = data.get('members', [])
-    signer = data.get('signer', {})
-    task_details = data.get('task_details', {})
-
-    if not members or not signer or not task_details:
-        return jsonify({"error": "Missing data for generating the document"}), 400
-
-    # Generate document file path
-    output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
-    #output_path = "Surat_Tugas_Auto_Generated.docx"
-
-    # Generate the Word document
     try:
-        generate_docx(members, signer, task_details, output_path)
-    except Exception as e:
-        return jsonify({"error": f"Error generating document: {e}"}), 500
+        data = request.get_json()  # Use get_json() instead of request.json
+        
+        if not data:
+            return jsonify({"error": "No JSON data received"}), 400
+            
+        # Extract data
+        members = data.get('members', [])
+        signer = data.get('signer', {})
+        task_details = data.get('task_details', {})
 
-    # Return the generated file
-    return send_file(output_path, as_attachment=True)
+        if not members or not signer or not task_details:
+            return jsonify({"error": "Missing required data"}), 400
+
+        # Generate document file path
+        output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
+        
+        # Generate the Word document
+        generate_docx(members, signer, task_details, output_path)
+        #send_file(output_path, as_attachment=True)
+        
+        # Return success response
+        return jsonify({"status": "success", "filename": output_path}), 200
+        
+    except Exception as e:
+        app.logger.error(f"Error in generate_document: {str(e)}")
+        return jsonify({"error": f"Error generating document: {str(e)}"}), 500
 
 @app.route('/add_member', methods=['POST'])
 def add_member():
