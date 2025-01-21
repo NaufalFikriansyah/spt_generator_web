@@ -49,8 +49,10 @@ def generate_docx(data, signer, task_details, output_path):
     signer['nip'],
     signer['pangkat'],
     # Check if the signer['jabatan'] matches the required value
-    signer['jabatan'] if signer['jabatan'] == "Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu"
-    else "Plh. Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu",
+    signer['jabatan'] if signer['jabatan'] == "Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu" \
+    else "Plh. Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu" \
+    if "Kepala" in signer['jabatan'] or "Deputi" in signer['jabatan'] \
+    else signer['jabatan'],
     signer['organization']
 ]
     for i, value in enumerate(header_data):
@@ -79,6 +81,8 @@ def generate_docx(data, signer, task_details, output_path):
                 row[3].text = member[field_name].title()  # Capitalize each word for names
             else:
                 row[3].text = member[field_name]
+            
+            
             paragraph1 = row[0].paragraphs[0]
             paragraph1.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
             paragraph2 = row[2].paragraphs[0]
@@ -93,6 +97,7 @@ def generate_docx(data, signer, task_details, output_path):
                     set_font(run, bold=is_name_field)
 
             current_row_idx += 1
+        
 
         if row_idx < len(data) - 1:
             if current_row_idx < len(assignments_table.rows):
@@ -160,6 +165,41 @@ def search_member():
     for line in data:
         fields = line.split(";")
         if len(fields) >= 6 and query in fields[1].lower():  # Check if the query matches the name
+            if fields[3] == "I/a":
+                fields[3] = "Juru Muda / Ia"
+            elif fields[3] == "I/b":
+                fields[3] = "Juru Muda Tk. I / Ib"
+            elif fields[3] == "I/c":
+                fields[3] = "Juru / Ic"
+            elif fields[3] == "I/d":
+                fields[3] = "Juru / Id"
+            elif fields[3] == "II/a":
+                fields[3] = "Pengatur Muda / IIa"
+            elif fields[3] == "II/b":
+                fields[3] = "Pengatur Muda Tk. I / IIb"
+            elif fields[3] == "II/c":
+                fields[3] = "Pengatur / IIc"
+            elif fields[3] == "II/d":
+                fields[3] = "Pengatur Tingkat I / IId"
+            elif fields[3] == "III/a":
+                fields[3] = "Penata Muda / IIIa"
+            elif fields[3] == "III/b":
+                fields[3] = "Penata Muda Tk. I / IIIb"
+            elif fields[3] == "III/c":
+                fields[3] = "Penata / IIIc"
+            elif fields[3] == "III/d":
+                fields[3] = "Penata Tk. I / IIId"
+            elif fields[3] == "IV/a":
+                fields[3] = "Pembina / IVa"
+            elif fields[3] == "IV/b":
+                fields[3] = "Pembina Tk. I / IVb"
+            elif fields[3] == "IV/c":
+                fields[3] = "Pembina Muda / IVc"
+            elif fields[3] == "IV/d":
+                fields[3] = "Pembina Madya / IVd"
+            elif fields[3] == "IV/e":
+                fields[3] = "Pembina Utama / IVe"
+            else : fields[3]
             results.append({
                 "nip": fields[0].strip(),
                 "name": fields[1].strip(),
@@ -191,7 +231,7 @@ def generate_document():
         
         # Generate the Word document
         generate_docx(members, signer, task_details, output_path)
-        #send_file(output_path, as_attachment=True)
+        send_file(output_path, as_attachment=True)
         
         # Return success response
         return jsonify({"status": "success", "filename": output_path}), 200
@@ -200,14 +240,15 @@ def generate_document():
         app.logger.error(f"Error in generate_document: {str(e)}")
         return jsonify({"error": f"Error generating document: {str(e)}"}), 500
 
-@app.route('/download_st', methods=['GET'])
+@app.route('/download_st', methods=['POST'])
 def download_document():
-    data = request.json
+    data = request.get_json()  # Use get_json() instead of request.json
+       
+    # Generate document file path
     task_details = data.get('task_details', {})
-    #output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
-    output_path = "Surat_Tugas_Auto_Generated.docx"
-    # if not os.path.exists(output_path):
-    #     return jsonify({"error": "Document not found"}), 404
+    output_path = f"Surat_Tugas_{task_details['tugas']}_{task_details['tanggal_berangkat']}.docx"
+        
+      
     return send_file(output_path, as_attachment=True)
 
 @app.route('/add_member', methods=['POST'])
