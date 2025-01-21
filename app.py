@@ -32,6 +32,52 @@ def set_font(run, font_name="Arial", font_size=12, font_color=(0, 0, 0), bold=Fa
     run.bold = bold
     run._element.rPr.rFonts.set(qn("w:eastAsia"), font_name)
 
+def pangkat_golongan(pangkat):
+    if pangkat == "I/a":
+        return "Juru Muda / Ia"
+    elif pangkat == "I/b":
+        return "Juru Muda Tk. I / Ib"
+    elif pangkat == "I/c":
+        return "Juru / Ic"
+    elif pangkat == "I/d":
+        return "Juru / Id"
+    elif pangkat == "II/a":
+        return "Pengatur Muda / IIa"
+    elif pangkat == "II/b":
+        return "Pengatur Muda Tk. I / IIb"
+    elif pangkat == "II/c":
+        return "Pengatur / IIc"
+    elif pangkat == "II/d":
+        return "Pengatur Tingkat I / IId"
+    elif pangkat == "III/a":
+        return "Penata Muda / IIIa"
+    elif pangkat == "III/b":
+        return "Penata Muda Tk. I / IIIb"
+    elif pangkat == "III/c":
+        return "Penata / IIIc"
+    elif pangkat == "III/d":
+        return "Penata Tk. I / IIId"
+    elif pangkat == "IV/a":
+        return "Pembina / IVa"
+    elif pangkat == "IV/b":
+        return "Pembina Tk. I / IVb"
+    elif pangkat == "IV/c":
+        return "Pembina Muda / IVc"
+    elif pangkat == "IV/d":
+        return "Pembina Madya / IVd"
+    elif pangkat == "IV/e":
+        return "Pembina Utama / IVe"
+    else:
+        return pangkat 
+
+def pejabat_ttd(jabatan):
+    if jabatan == "Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu":
+        return "Direktur Seismologi Teknik, Geofisika Potensial dan Tanda Waktu"
+    elif "Kepala" in jabatan and "Deputi" in jabatan:
+        return jabatan
+    else: 
+        return "Plh. Direktur Seismologi Teknik, Geofisika Potensial dan Tanda Waktu"
+
 # Generate a Word document
 def generate_docx(data, signer, task_details, output_path):
     template = Document("SPT_TEMPLATE.docx")
@@ -47,12 +93,8 @@ def generate_docx(data, signer, task_details, output_path):
     header_data = [
     signer['name'].title(),
     signer['nip'],
-    signer['pangkat'],
-    # Check if the signer['jabatan'] matches the required value
-    signer['jabatan'] if signer['jabatan'] == "Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu" \
-    else "Plh. Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu" \
-    if "Kepala" in signer['jabatan'] or "Deputi" in signer['jabatan'] \
-    else signer['jabatan'],
+    pangkat_golongan(signer['pangkat']),
+    pejabat_ttd(signer['jabatan']),
     signer['organization']
 ]
     for i, value in enumerate(header_data):
@@ -79,6 +121,8 @@ def generate_docx(data, signer, task_details, output_path):
 
             if field_name == "name":
                 row[3].text = member[field_name].title()  # Capitalize each word for names
+            elif field_name == "pangkat":
+                row[3].text = pangkat_golongan(member[field_name])  # Call the function
             else:
                 row[3].text = member[field_name]
             
@@ -109,12 +153,10 @@ def generate_docx(data, signer, task_details, output_path):
             current_row_idx += 1
 
     # Table 3: Task Details
-    
     task_table = tables[2]
     task_table.cell(0, 2).text = task_details["tugas"]
     task_table.cell(1, 2).text = task_details["lama_perjalanan"]
     task_table.cell(2, 2).text = task_details["lokasi"]
-    #task_table.cell(3, 2).text = formatted_date
     task_table.cell(3, 2).text = task_details["tanggal_berangkat"] 
     task_table.cell(4, 2).text = task_details["sumber_dana"]
 
@@ -127,9 +169,7 @@ def generate_docx(data, signer, task_details, output_path):
     signed_cell = tables[3]
     current_month_year = datetime.now().strftime("%B %Y")
     signed_cell.cell(0, 0).text = f"Jakarta,     {current_month_year}"
-    signed_cell.cell(1, 0).text = signer['jabatan']
-    # Check if the signer['jabatan'] matches the required value
-    signer['jabatan'] if signer['jabatan'] == "Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu" else "Plh. Direktur Seismologi Teknik Geofisika Potensial dan Tanda Waktu"
+    signed_cell.cell(1, 0).text = pejabat_ttd(signer['jabatan'])
     signed_cell.cell(3, 0).text = signer['name'].title()
 
     for row in signed_cell.rows:
@@ -165,41 +205,6 @@ def search_member():
     for line in data:
         fields = line.split(";")
         if len(fields) >= 6 and query in fields[1].lower():  # Check if the query matches the name
-            if fields[3] == "I/a":
-                fields[3] = "Juru Muda / Ia"
-            elif fields[3] == "I/b":
-                fields[3] = "Juru Muda Tk. I / Ib"
-            elif fields[3] == "I/c":
-                fields[3] = "Juru / Ic"
-            elif fields[3] == "I/d":
-                fields[3] = "Juru / Id"
-            elif fields[3] == "II/a":
-                fields[3] = "Pengatur Muda / IIa"
-            elif fields[3] == "II/b":
-                fields[3] = "Pengatur Muda Tk. I / IIb"
-            elif fields[3] == "II/c":
-                fields[3] = "Pengatur / IIc"
-            elif fields[3] == "II/d":
-                fields[3] = "Pengatur Tingkat I / IId"
-            elif fields[3] == "III/a":
-                fields[3] = "Penata Muda / IIIa"
-            elif fields[3] == "III/b":
-                fields[3] = "Penata Muda Tk. I / IIIb"
-            elif fields[3] == "III/c":
-                fields[3] = "Penata / IIIc"
-            elif fields[3] == "III/d":
-                fields[3] = "Penata Tk. I / IIId"
-            elif fields[3] == "IV/a":
-                fields[3] = "Pembina / IVa"
-            elif fields[3] == "IV/b":
-                fields[3] = "Pembina Tk. I / IVb"
-            elif fields[3] == "IV/c":
-                fields[3] = "Pembina Muda / IVc"
-            elif fields[3] == "IV/d":
-                fields[3] = "Pembina Madya / IVd"
-            elif fields[3] == "IV/e":
-                fields[3] = "Pembina Utama / IVe"
-            else : fields[3]
             results.append({
                 "nip": fields[0].strip(),
                 "name": fields[1].strip(),
